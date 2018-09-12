@@ -2,10 +2,10 @@ class GameHandler
     ''' This class deals with all interactions with the game/gym challenge. The class takes env, an OpenAI gym
         environment, sess: a tensorflow session, model which will be a tensorflow network, memory which will be an
         ExperienceBuffer object, some epsilons which dictate when the GameHandler will take random action, a lamb
-        (short for lambda) which also dictates the rate of decrease of epsilon, a gamma which is the amount we discount
-        future reward byand a reward store to store past results.'''
+        (short for lambda) which also dictates the rate of decrease of epsilon, and a gamma which is the amount we discount
+        future reward by.'''
 
-    def __init__(env, model, memory, max_epsilon, min_epsilon, lamb):
+    def __init__(env, sess, model, memory, max_epsilon, min_epsilon, lamb, gamma):
         self.env = env
         self._sess = sess
         self._model = model
@@ -14,15 +14,15 @@ class GameHandler
         self._min_epsilon = min_epsilon
         self._epsilon = max_epsilon
         self._lamb = lamb # can't use lambda because python wants to create a lambda function
-        self._gamma
+        self._gamma = gamma
         self._reward_store = []
 
-    def run(self):
+    def run(self, render=False):
         state = self.env.reset()
         total_reward = 0
 
         while True:
-            if self._render:
+            if render:
                 self.env.render()
 
             action = self._choose_action(state)
@@ -84,5 +84,5 @@ class GameHandler
 
             x[i] = state
             y[i] = current_q
-            
+
         self._model.train_batch(self._sess, x, y)
