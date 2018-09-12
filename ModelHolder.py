@@ -2,7 +2,8 @@ class ModelHolder:
     ''' This class holds all the parameters about the neural model but not the
         training functions. '''
 
-    def __init__(self, action_size, observation_size, batch_size, hidden_size=24):
+    def __init__(self, action_size, observation_size, batch_size,
+                 hidden_size=24):
         ''' This is the first time I've written a class where all attributes are
             declared in __init__, even if they are initialized to None. '''
 
@@ -28,7 +29,7 @@ class ModelHolder:
     def _define_model():
         ''' This function is just to define all the variables in the neural
             network and itinialize them as tensorflow variables. '''
-        
+
         self._states = tf.placeholder(shape=[None, self._observation_size],
                                       dtype=tf.float32)
         self._q_s_a = tf.placeholder(shape=[None, self._action_size],
@@ -39,7 +40,7 @@ class ModelHolder:
         # sequential or using tf.layers but this is the most basic way to do it.
 
         l_1_weights = tf.Variable(tf.truncated_normal([self._states,
-                                                           self._hidden_size]))
+                                                       self._hidden_size]))
         l_2_weights = tf.Variable(tf.truncated_normal([self._hidden_size,
                                                        self._hidden_size]))
         l_3_weights = tf.Variable(tf.truncated_normal([self._hidden_size,
@@ -57,3 +58,10 @@ class ModelHolder:
         loss = tf.losses.mean_squared_error(self._q_s_a, self._logits)
         self._optimizer = tf.train.AdamOptimizer().minimize(loss)
         self._var_init = tf.global_variables_initializer()
+
+    def predict_batch(self, states, sess):
+        return sess.run(self._logits, feed_dict={self._states: states})
+
+    def train_batch(self, sess, state_batch, reward_batch):
+        sess.run(self._optimizer, feed_dict={self._states: state_batch,
+                                             self._q_s_a: reward_batch})
