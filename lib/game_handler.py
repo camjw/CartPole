@@ -3,13 +3,16 @@ import math
 import numpy as np
 
 class GameHandler:
-    ''' This class deals with all interactions with the game/gym challenge. The class takes env, an OpenAI gym
-        environment, sess: a tensorflow session, model which will be a tensorflow network, memory which will be an
-        ExperienceBuffer object, some epsilons which dictate when the GameHandler will take random action, a lamb
-        (short for lambda) which also dictates the rate of decrease of epsilon, and a gamma which is the amount we discount
-        future reward by.'''
+    ''' This class deals with all interactions with the game/gym challenge. The
+        class takes env, an OpenAI gym environment, sess: a tensorflow session,
+        model which will be a tensorflow network, memory which will be an
+        ExperienceBuffer object, some epsilons which dictate when the
+        GameHandler will take random action, a lamb (short for lambda) which
+        also dictates the rate of decrease of epsilon, and a gamma which is the
+        amount we discount future reward by.'''
 
-    def __init__(self, env, sess, model, memory, max_epsilon, min_epsilon, lamb, gamma):
+    def __init__(self, env, sess, model, memory, max_epsilon, min_epsilon, lamb,
+                 gamma):
         self.env = env
         self._sess = sess
         self._model = model
@@ -17,7 +20,7 @@ class GameHandler:
         self._max_epsilon = max_epsilon
         self._min_epsilon = min_epsilon
         self._epsilon = max_epsilon
-        self._lamb = lamb # can't use lambda because python wants to create a lambda function
+        self._lamb = lamb # can't use lambda because of lambda functions
         self._gamma = gamma
         self._reward_store = []
         self._steps = 0
@@ -41,8 +44,9 @@ class GameHandler:
             self._replay()
 
             self._steps += 1
-            self._epsilon = self._min_epsilon + ((self._max_epsilon - self._min_epsilon)
-                                                * math.exp(- self._lamb * self._total_steps))
+            self._epsilon = self._min_epsilon + ((self._max_epsilon
+                            - self._min_epsilon) * math.exp(- self._lamb
+                                                            * self._total_steps))
             state = new_state
             total_reward += reward
 
@@ -50,7 +54,9 @@ class GameHandler:
                 self._reward_store += [total_reward]
                 break
 
-        print("We made it through {} steps and were rewarded {} in total. Epsilon is now {}.".format(self._steps, total_reward, self._epsilon))
+        print('''We made it through {} steps and were rewarded {} in total.
+                 Epsilon is now {}.'''.format(self._steps, total_reward,
+                                              self._epsilon))
         self._total_steps, self._steps = self._total_steps + self._steps, 0
 
 
@@ -58,13 +64,15 @@ class GameHandler:
         if random.random() < self._epsilon:
             return random.randint(0, self._model._action_size -1)
         else:
-            return np.argmax(self._model.predict_batch(state.reshape(1, self._model._observation_size), self._sess))
+            return np.argmax(self._model.predict_batch(state.reshape(1,
+                             self._model._observation_size), self._sess))
 
     def _replay(self):
         batch = self._memory.take_sample(self._model._batch_size)
         states = np.array([entry[0] for entry in batch])
-        new_states = np.array([(np.zeros(self._model._observation_size) if entry[3]
-                                is None else entry[3]) for entry in batch])
+        new_states = np.array([(np.zeros(self._model._observation_size) if
+                                entry[3] is None else entry[3])
+                                for entry in batch])
 
         # predict Q(s,a) given the batch of states
         q_s_a = self._model.predict_batch(states, self._sess)
@@ -84,8 +92,8 @@ class GameHandler:
 
             # update the q value for action
             if next_state is None:
-                # in this case, the game completed after action, so there is no max Q(s',a')
-                # prediction possible
+                # in this case, the game completed after action, so there is
+                # no max Q(s',a') prediction possible
                 current_q[action] = reward
             else:
                 current_q[action] = reward + self._gamma * np.amax(q_s_a_d[i])
