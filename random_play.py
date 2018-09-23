@@ -1,15 +1,25 @@
 import gym
 
-env = gym.make('CartPole-v0')
+class RandomPlayer:
 
-for i_episode in range(5):
-    observation = env.reset()
-    done_test = True
-    for t in range(100):
-        env.render()
-        action = env.action_space.sample()
-        observation, reward, done, info = env.step(action)
+    def __init__(self, env_name):
+       self.env_name = env_name
+       self.game = gym.make(env_name)
 
-        if done and done_test:
-            done_test = False
-            print("Episode finished after {} timesteps".format(t+1))
+    def play(self, num_episodes):
+
+        for episode in range(num_episodes):
+            observation = self.game.reset()
+            finished = True
+            for t in range(200):
+                self.game.render()
+                action = self.game.action_space.sample()
+                observation, reward, done, info = self.game.step(action)
+
+                if done and finished:
+                    finished = False
+                    print("Episode finished after {} timesteps".format(t+1))
+
+if __name__ == "__main__":
+    rando = RandomPlayer("CartPole-v0")
+    rando.play(10)

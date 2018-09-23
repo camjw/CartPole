@@ -1,6 +1,7 @@
 import random
 import math
 import numpy as np
+import pandas as pd
 
 class GameHandler:
     ''' This class deals with all interactions with the game/gym challenge. The
@@ -54,15 +55,13 @@ class GameHandler:
                 self._reward_store += [total_reward]
                 break
 
-        print('''We made it through {} steps and were rewarded {} in total.
-                 Epsilon is now {}.'''.format(self._steps, total_reward,
-                                              self._epsilon))
+        print("Rewarded {} in total.".format(total_reward))
         self._total_steps, self._steps = self._total_steps + self._steps, 0
 
 
     def _choose_action(self, state):
         if random.random() < self._epsilon:
-            return random.randint(0, self._model._action_size -1)
+            return random.randint(0, self._model._action_size - 1)
         else:
             return np.argmax(self._model.predict_batch(state.reshape(1,
                              self._model._observation_size), self._sess))
@@ -102,3 +101,21 @@ class GameHandler:
             y[i] = current_q
 
         self._model.train_batch(self._sess, x, y)
+
+    def test_learning(self, num_episodes):
+        rewards = []
+        for episode in range(num_episodes):
+            state = self.env.reset()
+            total_reward = 0
+            while True:
+                action = self._choose_action(state)
+                new_state, reward, done, _ = self.env.step(action)
+                if done:
+                    new_state = None
+                state = new_state
+                total_reward += reward
+                if done:
+                    rewards += [total_reward]
+                    break
+
+        return [np.array(rewards).mean(), np.array(rewards).min()]

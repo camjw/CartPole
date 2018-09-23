@@ -11,29 +11,29 @@ from lib import model_holder
 
 def main(env_name, num_episodes, batch_size, total_memory, max_epsilon,
          min_epsilon, lamb, gamma, session, location):
-    env = gym.make(env_name)
+    game = gym.make(env_name)
 
-    num_states = env.env.observation_space.shape[0]
-    num_actions = env.env.action_space.n
+    num_states = game.env.observation_space.shape[0]
+    num_actions = game.env.action_space.n
 
     model = model_holder.ModelHolder(num_actions, num_states, batch_size)
     memory = experience_buffer.ExperienceBuffer(total_memory)
 
     with session as sess:
         sess.run(model._var_init)
-        gamehandler = game_handler.GameHandler(env, sess, model, memory,
+        handler = game_handler.GameHandler(game, sess, model, memory,
                                                max_epsilon, min_epsilon,
                                                lamb, gamma)
         count = 0
         while count < num_episodes:
             if count % 10 == 0:
                 print('Episode {} of {}'.format(count+1, num_episodes))
-            gamehandler.run()
+            handler.run()
             count += 1
 
         model._saver.save(sess, LOCATION, global_step=1000)
         sns.set(style='darkgrid', context='talk', palette='Dark2')
-        data = pd.Series(gamehandler._reward_store)
+        data = pd.Series(handler._reward_store)
         data.to_pickle(location + "_reward_store.pickle")
         rolling_mean = data.rolling(window=100).mean()
 
@@ -46,7 +46,7 @@ def main(env_name, num_episodes, batch_size, total_memory, max_epsilon,
             if command in ["n", "N"]:
                 break
             else:
-                gamehandler.run(render=True)
+                handler.run(render=True)
 
 def load_saved_network(env_name, filename):
 
@@ -57,13 +57,13 @@ def load_saved_network(env_name, filename):
 
 if __name__ == "__main__":
     ENV_NAME = "CartPole-v0"
-    NUM_EPISODES = 1000
-    BATCH_SIZE = 300
-    TOTAL_MEMORY = 10000
-    MAX_EPSILON = 0.5
+    NUM_EPISODES = 4096
+    BATCH_SIZE = 16
+    TOTAL_MEMORY = 100000
+    MAX_EPSILON = 1
     MIN_EPSILON = 0.01
-    LAMBDA = 0.001
-    GAMMA = 0.999
+    LAMBDA = 0.00001
+    GAMMA = 0.99
     SESSION = tf.Session()
     LOCATION = "data/CartPole_24_48_1000/"
     main(ENV_NAME, NUM_EPISODES, BATCH_SIZE, TOTAL_MEMORY, MAX_EPSILON,
