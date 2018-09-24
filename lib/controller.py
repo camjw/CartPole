@@ -4,9 +4,9 @@ import pickle
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-from lib import experience_buffer as eb
-from lib import game_handler as gh
-from lib import model_holder as mh
+import experience_buffer as eb
+import game_handler as gh
+import model_holder as mh
 
 
 class Controller:
@@ -71,6 +71,13 @@ class Controller:
 
     def load_network():
 
-    def plot_rewards():
+    def plot_rewards(self):
+        data = pd.Series(self.handler._reward_store)
+        data.to_pickle(location + "_reward_store.pickle")
+        rolling_mean = data.rolling(window=100).mean()
+
+        plt.plot(rolling_mean)
+        plt.show()
+        plt.close("all")
 
     def render_play():
