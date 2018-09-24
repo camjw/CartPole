@@ -11,8 +11,8 @@ import model_holder as mh
 
 class Controller:
 
-    def __init__(self, env_name, num_episodes, batch_size, total_memory, max_epsilon,
-             min_epsilon, lamb, gamma, location, session, location):
+    def __init__(self, env_name, num_episodes, batch_size, total_memory,
+        max_epsilon, min_epsilon, lamb, gamma, location, session, location):
 
         self.game = gym.make(env_name)
         self.num_states = self.game.env.observation_space.shape[0]
@@ -69,7 +69,8 @@ class Controller:
                 score[0], score[1])
 
 
-    def load_network():
+    def load_network(self, location=self.location):
+        pass
 
     def plot_rewards(self):
         data = pd.Series(self.handler._reward_store)
@@ -80,4 +81,16 @@ class Controller:
         plt.show()
         plt.close("all")
 
-    def render_play():
+    def render_play(self, num_episodes):
+        for episode in range(num_episodes):
+            observation = self.game.reset()
+            finished = True
+            while True:
+                self.game.render()
+                action = self.handler._choose_action()
+                observation, reward, done, info = self.game.step(action)
+
+                if done and finished:
+                    finished = False
+                    print("Episode finished after {} timesteps".format(t+1))
+                    break

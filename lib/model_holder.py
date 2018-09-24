@@ -6,17 +6,12 @@ class ModelHolder:
 
     def __init__(self, action_size, observation_size, batch_size,
                  hidden_size=256, keep_prob=0.9):
-        ''' This is the first time I've written a class where all attributes are
-            declared in __init__, even if they are initialized to None. This is
-            so not true... I barely declare half of the attrs...'''
-
         self._observation_size = observation_size
         self._action_size = action_size
         self._batch_size = batch_size
         self._hidden_size = hidden_size
         self._dropout = None
         self._keep_prob = keep_prob
-
 
         # Define the placeholders. These will become Tensorflow Placeholders.
         self._states = None
@@ -31,7 +26,6 @@ class ModelHolder:
 
         # This lets us save the model after we've finished
         self._saver = None
-
 
         # Now we setup the model.
         self.define_model()
@@ -71,7 +65,8 @@ class ModelHolder:
 
         self.loss = tf.losses.mean_squared_error(self._q_s_a, self._logits)
 
-        self._optimizer = tf.train.AdamOptimizer(learning_rate=0.0001).minimize(self.loss)
+        self._optimizer = tf.train.AdamOptimizer(learning_rate=0.0001).minimize(
+            self.loss)
         self._var_init = tf.global_variables_initializer()
 
     def predict_one(self, state, sess):

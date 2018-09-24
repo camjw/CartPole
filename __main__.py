@@ -56,7 +56,7 @@ def load_saved_network(env_name, filename):
          pass
 
 if __name__ == "__main__":
-    ENV_NAME = "CartPole-v0"
+    ENV_NAME = "CartPole-v1"
     NUM_EPISODES = 4096
     BATCH_SIZE = 16
     TOTAL_MEMORY = 100000

@@ -63,8 +63,7 @@ class GameHandler:
         if random.random() < self._epsilon:
             return random.randint(0, self._model._action_size - 1)
         else:
-            return np.argmax(self._model.predict_batch(state.reshape(1,
-                             self._model._observation_size), self._sess))
+            return np.argmax(self._model.predict_one(state, self._sess))
 
     def _replay(self):
         batch = self._memory.take_sample(self._model._batch_size)
