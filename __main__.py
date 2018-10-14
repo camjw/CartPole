@@ -13,59 +13,11 @@ def main(env_name, num_episodes, batch_size, total_memory, max_epsilon,
     cartpole_control = control.Controller(env_name, num_episodes, batch_size,
         total_memory, max_epsilon, min_epsilon, lamb, gamma, session, location)
 
-    cartpole_control.learn_game(4096)
-
+    cartpole_control.learn_game(num_episodes)
     cartpole_control.plot_rewards()
 
-
-# def main2(env_name, num_episodes, batch_size, total_memory, max_epsilon,
-#     min_epsilon, lamb, gamma, session, location):
-#     game = gym.make(env_name)
-#
-#     num_states = game.env.observation_space.shape[0]
-#     num_actions = game.env.action_space.n
-#
-#     model = model_holder.ModelHolder(num_actions, num_states, batch_size)
-#     memory = experience_buffer.ExperienceBuffer(total_memory)
-#
-#     with session as sess:
-#         sess.run(model._var_init)
-#         handler = game_handler.GameHandler(game, sess, model, memory,
-#                                                max_epsilon, min_epsilon,
-#                                                lamb, gamma)
-#         count = 0
-#         while count < num_episodes:
-#             if count % 10 == 0:
-#                 print('Episode {} of {}'.format(count+1, num_episodes))
-#             handler.run()
-#             count += 1
-#
-#         model._saver.save(sess, LOCATION, global_step=1000)
-#         sns.set(style='darkgrid', context='talk', palette='Dark2')
-#         data = pd.Series(handler._reward_store)
-#         data.to_pickle(location + "_reward_store.pickle")
-#         rolling_mean = data.rolling(window=100).mean()
-#
-#         plt.plot(rolling_mean)
-#         plt.show()
-#         plt.close("all")
-#
-#         while True:
-#             command = input("\nDo you want to see the AI play?\n")
-#             if command in ["n", "N"]:
-#                 break
-#             else:
-#                 handler.run(render=True)
-
-def load_saved_network(env_name, filename):
-
-    env = gym.make(env_name)
-
-    with tf.Session() as sess:
-         pass
-
 if __name__ == "__main__":
-    ENV_NAME = "MountainCarContinuous-v0"
+    ENV_NAME = "CartPole-v0"
     NUM_EPISODES = 4096
     BATCH_SIZE = 16
     TOTAL_MEMORY = 100000
@@ -74,7 +26,7 @@ if __name__ == "__main__":
     LAMBDA = 0.00001
     GAMMA = 0.99
     SESSION = tf.Session()
-    LOCATION = "data/CartPole_24_48_1000/"
+    LOCATION = "data/CartPole_test/"
     main(ENV_NAME, NUM_EPISODES, BATCH_SIZE, TOTAL_MEMORY, MAX_EPSILON,
          MIN_EPSILON, LAMBDA, GAMMA, SESSION, LOCATION)
 
@@ -86,7 +38,7 @@ if __name__ == "__main__":
                "min_epsilon": MIN_EPSILON,
                "lamb": LAMBDA,
                "gamma": GAMMA,
-               "location": "mountain_car_test",
+               "location": "data/CartPole_test",
                }
 
     with open(LOCATION + "hyperparameter_dict.txt", "wb") as parameterDict:

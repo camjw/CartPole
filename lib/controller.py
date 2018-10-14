@@ -21,7 +21,6 @@ class Controller:
         except:
             self.num_actions = self.game.env.action_space.shape[0]
 
-
         self.num_episodes = num_episodes
 
         self.model = mh.ModelHolder(self.num_actions, self.num_states,
@@ -77,10 +76,6 @@ class Controller:
         score = self.handler.test_learning(num_episodes)
         print('The mean over {} steps was {}. The minimum score was {}.'.format(
             num_episodes, score[0], score[1]))
-
-
-    def load_network(self):
-        pass
 
     def plot_rewards(self):
         data = pd.Series(self.handler._reward_store)
