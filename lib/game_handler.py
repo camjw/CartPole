@@ -15,17 +15,17 @@ class GameHandler:
     def __init__(self, env, sess, model, memory, max_epsilon, min_epsilon, lamb,
                  gamma):
         self.env = env
-        self._sess = sess
-        self._model = model
-        self._memory = memory
-        self._max_epsilon = max_epsilon
-        self._min_epsilon = min_epsilon
-        self._epsilon = max_epsilon
-        self._lamb = lamb # can't use lambda because of lambda functions
-        self._gamma = gamma
-        self._reward_store = []
-        self._steps = 0
-        self._total_steps = 0
+        self.sess = sess
+        self.model = model
+        self.memory = memory
+        self.max_epsilon = max_epsilon
+        self.min_epsilon = min_epsilon
+        self.epsilon = max_epsilon
+        self.lamb = lamb # can't use lambda because of lambda functions
+        self.gamma = gamma
+        self.reward_store = []
+        self.steps = 0
+        self.total_steps = 0
 
     def run(self, render=False):
         state = self.env.reset()
@@ -41,46 +41,46 @@ class GameHandler:
             if done:
                 new_state = None
 
-            self._memory.add_sample((state, action, reward, new_state))
+            self.memory.add_sample((state, action, reward, new_state))
             self._replay()
 
-            self._steps += 1
-            self._epsilon = self._min_epsilon + ((self._max_epsilon
-                            - self._min_epsilon) * math.exp(- self._lamb
-                                                            * self._total_steps))
+            self.steps += 1
+            self.epsilon = self.min_epsilon + ((self.max_epsilon
+                            - self.min_epsilon) * math.exp(- self.lamb
+                                                            * self.total_steps))
             state = new_state
             total_reward += reward
 
             if done:
-                self._reward_store += [total_reward]
+                self.reward_store += [total_reward]
                 break
 
         print("Rewarded {} in total.".format(total_reward))
-        self._total_steps, self._steps = self._total_steps + self._steps, 0
+        self.total_steps, self.steps = self.total_steps + self.steps, 0
 
 
     def _choose_action(self, state):
-        if random.random() < self._epsilon:
-            return random.randint(0, self._model._action_size - 1)
+        if random.random() < self.epsilon:
+            return random.randint(0, self.model._action_size - 1)
         else:
-            return np.argmax(self._model.predict_one(state, self._sess))
+            return np.argmax(self.model.predict_one(state, self.sess))
 
     def _replay(self):
-        batch = self._memory.take_sample(self._model._batch_size)
+        batch = self.memory.take_sample(self.model._batch_size)
         states = np.array([entry[0] for entry in batch])
-        new_states = np.array([(np.zeros(self._model._observation_size) if
+        new_states = np.array([(np.zeros(self.model._observation_size) if
                                 entry[3] is None else entry[3])
                                 for entry in batch])
 
         # predict Q(s,a) given the batch of states
-        q_s_a = self._model.predict_batch(states, self._sess)
+        q_s_a = self.model.predict_batch(states, self.sess)
 
         # predict Q(s',a') - so that we can do gamma * max(Q(s'a')) below
-        q_s_a_d = self._model.predict_batch(new_states, self._sess)
+        q_s_a_d = self.model.predict_batch(new_states, self.sess)
 
         # setup training arrays
-        x = np.zeros((len(batch), self._model._observation_size))
-        y = np.zeros((len(batch), self._model._action_size))
+        x = np.zeros((len(batch), self.model._observation_size))
+        y = np.zeros((len(batch), self.model._action_size))
 
         for i, entry in enumerate(batch):
             state, action, reward, next_state = entry[0], entry[1], entry[2], entry[3]
@@ -94,12 +94,12 @@ class GameHandler:
                 # no max Q(s',a') prediction possible
                 current_q[action] = reward
             else:
-                current_q[action] = reward + self._gamma * np.amax(q_s_a_d[i])
+                current_q[action] = reward + self.gamma * np.amax(q_s_a_d[i])
 
             x[i] = state
             y[i] = current_q
 
-        self._model.train_batch(self._sess, x, y)
+        self.model.train_batch(self.sess, x, y)
 
     def test_learning(self, num_episodes):
         rewards = []

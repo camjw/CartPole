@@ -7,13 +7,13 @@ class ExperienceBuffer:
 
     def __init__(self, max_memory):
         self._max_memory = max_memory
-        self._samples = []
+        self.samples = []
 
     def add_sample(self, sample):
-        self._samples += [sample]
-        if len(self._samples) > self._max_memory:
-            self._samples = self._samples[1:]
+        self.samples += [sample]
+        if len(self.samples) > self._max_memory:
+            self.samples = self.samples[1:]
 
     def take_sample(self, no_samples):
-        no_samples = min(no_samples, len(self._samples))
-        return random.sample(self._samples, no_samples)
+        no_samples = min(no_samples, len(self.samples))
+        return random.sample(self.samples, no_samples)
