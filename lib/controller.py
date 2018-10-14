@@ -4,19 +4,23 @@ import pickle
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-import experience_buffer as eb
-import game_handler as gh
-import model_holder as mh
+import lib.experience_buffer as eb
+import lib.game_handler as gh
+import lib.model_holder as mh
 
 
 class Controller:
 
     def __init__(self, env_name, num_episodes, batch_size, total_memory,
-        max_epsilon, min_epsilon, lamb, gamma, location, session, location):
+        max_epsilon, min_epsilon, lamb, gamma, session, location):
 
         self.game = gym.make(env_name)
         self.num_states = self.game.env.observation_space.shape[0]
-        self.num_actions = self.game.env.action_space.n
+        try:
+            self.num_actions = self.game.env.action_space.n
+        except:
+            self.num_actions = self.game.env.action_space.shape[0]
+
 
         self.num_episodes = num_episodes
 
@@ -38,7 +42,7 @@ class Controller:
                            self.lamb, self.gamma)
         self.parameters = { "env_name": env_name,
                             "total_memory": total_memory,
-                            "batch_size": batch_size
+                            "batch_size": batch_size,
                             "max_epsilon": max_epsilon,
                             "min_epsilon": min_epsilon,
                             "lambda": lamb,
@@ -62,19 +66,25 @@ class Controller:
                 self.model._saver.save(sess, location, global_step=1000)
                 with open(LOCATION + "hyperparameter_dict.txt", "wb") as params:
                     pickle.dump(self.parameters, params)
+            while True:
+                command = input("\nDo you want to see the AI play?\n")
+                if command in ["n", "N"]:
+                    break
+                else:
+                    self.handler.run(render=True)
 
     def test_learning(self, num_episodes):
         score = self.handler.test_learning(num_episodes)
-        print "The mean over {} steps was {}. The minimum score was {}.".format(
-                score[0], score[1])
+        print('The mean over {} steps was {}. The minimum score was {}.'.format(
+            num_episodes, score[0], score[1]))
 
 
-    def load_network(self, location=self.location):
+    def load_network(self):
         pass
 
     def plot_rewards(self):
         data = pd.Series(self.handler._reward_store)
-        data.to_pickle(location + "_reward_store.pickle")
+        data.to_pickle(self.location + "_reward_store.pickle")
         rolling_mean = data.rolling(window=100).mean()
 
         plt.plot(rolling_mean)
