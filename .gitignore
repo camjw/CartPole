@@ -1,6 +1,6 @@
 lib/__pycache__/
-data
 __pycache__
 .coverage
 htmlcov
 test
+.DS_Store

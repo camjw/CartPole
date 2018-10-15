@@ -61,14 +61,14 @@ class GameHandler:
 
     def choose_action(self, state):
         if random.random() < self.epsilon:
-            return random.randint(0, self.model._action_size - 1)
+            return random.randint(0, self.model.action_size - 1)
         else:
             return np.argmax(self.model.predict_one(state, self.sess))
 
     def replay(self):
-        batch = self.memory.take_sample(self.model._batch_size)
+        batch = self.memory.take_sample(self.model.batch_size)
         states = np.array([entry[0] for entry in batch])
-        new_states = np.array([(np.zeros(self.model._observation_size) if
+        new_states = np.array([(np.zeros(self.model.observation_size) if
                                 entry[3] is None else entry[3])
                                for entry in batch])
 
@@ -79,8 +79,8 @@ class GameHandler:
         q_s_a_d = self.model.predict_batch(new_states, self.sess)
 
         # setup training arrays
-        x = np.zeros((len(batch), self.model._observation_size))
-        y = np.zeros((len(batch), self.model._action_size))
+        x = np.zeros((len(batch), self.model.observation_size))
+        y = np.zeros((len(batch), self.model.action_size))
 
         for i, entry in enumerate(batch):
             state, action, reward, next_state = entry[0], entry[1], entry[2], entry[3]
