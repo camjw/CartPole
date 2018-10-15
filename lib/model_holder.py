@@ -1,5 +1,6 @@
 import tensorflow as tf
 
+
 class ModelHolder:
     ''' This class holds all the parameters about the neural model but not the
         training functions. '''
@@ -35,15 +36,15 @@ class ModelHolder:
             network and itinialize them as tensorflow variables. '''
 
         self.states = tf.placeholder(shape=[None, self.observation_size],
-                                      dtype=tf.float32)
-        self._q_s_a = tf.placeholder(shape=[None, self.action_size],
                                      dtype=tf.float32)
+        self.q_s_a = tf.placeholder(shape=[None, self.action_size],
+                                    dtype=tf.float32)
         self.dropout = tf.placeholder(dtype=tf.float32)
-
 
         # Create two fully connected hidden layers using just Tensorflow
         # variables and tanh functions. This could be done with a Keras
-        # sequential or using tf.layers but this is the most basic way to do it.
+        # sequential or using tf.layers but this is the most basic way to do
+        # it.
 
         l_1_weights = tf.Variable(tf.truncated_normal([self.observation_size,
                                                        self.hidden_size]))
@@ -53,9 +54,8 @@ class ModelHolder:
         l_1_biases = tf.Variable(tf.zeros([self.hidden_size]))
         l_2_biases = tf.Variable(tf.zeros([self.action_size]))
 
-
         self.saver = tf.train.Saver([l_1_weights, l_2_weights,
-                                      l_1_biases, l_2_biases,])
+                                     l_1_biases, l_2_biases, ])
 
         fully_connected_1 = tf.nn.tanh(tf.matmul(self.states, l_1_weights)
                                        + l_1_biases)
@@ -63,7 +63,7 @@ class ModelHolder:
 
         self.logits = tf.matmul(dropped_layer_1, l_2_weights) + l_2_biases
 
-        self.loss = tf.losses.mean_squared_error(self._q_s_a, self.logits)
+        self.loss = tf.losses.mean_squared_error(self.q_s_a, self.logits)
 
         self.optimizer = tf.train.AdamOptimizer(learning_rate=0.0001).minimize(
             self.loss)
@@ -76,12 +76,12 @@ class ModelHolder:
 
     def predict_batch(self, states, sess):
         return sess.run(self.logits, feed_dict={self.states: states,
-            self.dropout: self.keep_prob})
+                                                self.dropout: self.keep_prob})
 
     def train_batch(self, sess, state_batch, reward_batch):
         sess.run(self.optimizer, feed_dict={self.states: state_batch,
-                                             self._q_s_a: reward_batch,
-                                             self.dropout: self.keep_prob})
+                                            self.q_s_a: reward_batch,
+                                            self.dropout: self.keep_prob})
 
     def load_network(self, sess, filename):
         load_save = tf.train.import_meta_graph(filename)

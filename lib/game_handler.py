@@ -3,6 +3,7 @@ import math
 import numpy as np
 import pandas as pd
 
+
 class GameHandler:
     ''' This class deals with all interactions with the game/gym challenge. The
         class takes env, an OpenAI gym environment, sess: a tensorflow session,
@@ -21,7 +22,7 @@ class GameHandler:
         self.max_epsilon = max_epsilon
         self.min_epsilon = min_epsilon
         self.epsilon = max_epsilon
-        self.lamb = lamb # can't use lambda because of lambda functions
+        self.lamb = lamb  # can't use lambda because of lambda functions
         self.gamma = gamma
         self.reward_store = []
         self.steps = 0
@@ -35,19 +36,19 @@ class GameHandler:
             if render:
                 self.env.render()
 
-            action = self._choose_action(state)
+            action = self.choose_action(state)
             new_state, reward, done, _ = self.env.step(action)
 
             if done:
                 new_state = None
 
             self.memory.add_sample((state, action, reward, new_state))
-            self._replay()
+            self.replay()
 
             self.steps += 1
             self.epsilon = self.min_epsilon + ((self.max_epsilon
-                            - self.min_epsilon) * math.exp(- self.lamb
-                                                            * self.total_steps))
+                                                - self.min_epsilon) * math.exp(- self.lamb
+                                                                               * self.total_steps))
             state = new_state
             total_reward += reward
 
@@ -58,19 +59,18 @@ class GameHandler:
         print("Rewarded {} in total.".format(total_reward))
         self.total_steps, self.steps = self.total_steps + self.steps, 0
 
-
-    def _choose_action(self, state):
+    def choose_action(self, state):
         if random.random() < self.epsilon:
             return random.randint(0, self.model._action_size - 1)
         else:
             return np.argmax(self.model.predict_one(state, self.sess))
 
-    def _replay(self):
+    def replay(self):
         batch = self.memory.take_sample(self.model._batch_size)
         states = np.array([entry[0] for entry in batch])
         new_states = np.array([(np.zeros(self.model._observation_size) if
                                 entry[3] is None else entry[3])
-                                for entry in batch])
+                               for entry in batch])
 
         # predict Q(s,a) given the batch of states
         q_s_a = self.model.predict_batch(states, self.sess)
@@ -107,7 +107,7 @@ class GameHandler:
             state = self.env.reset()
             total_reward = 0
             while True:
-                action = self._choose_action(state)
+                action = self.choose_action(state)
                 new_state, reward, done, _ = self.env.step(action)
                 if done:
                     new_state = None
