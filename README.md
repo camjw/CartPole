@@ -15,7 +15,7 @@ See it play the CartPole game here:
 pip install requirements.txt
 ```
 - Optionally, see how an agent behaving randomly behaves by running `python random_play.py`.
-- Train the neural network by running `python main.py` from the root of the repo. You can then see the graphy of its learning and see the agent perform the CartPole task
+- Train the neural network by running `python main.py` from the root of the repo. You can then see the graph of its learning and see the agent perform the CartPole task
 
 ## Performance
 
