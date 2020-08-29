@@ -1,10 +1,10 @@
 import gym
 
-class RandomPlayer:
 
+class RandomPlayer:
     def __init__(self, env_name):
-       self.env_name = env_name
-       self.game = gym.make(env_name)
+        self.env_name = env_name
+        self.game = gym.make(env_name)
 
     def play(self, num_episodes):
 
@@ -18,7 +18,8 @@ class RandomPlayer:
 
                 if done and finished:
                     finished = False
-                    print("Episode finished after {} timesteps".format(t+1))
+                    print("Episode finished after {} timesteps".format(t + 1))
+
 
 if __name__ == "__main__":
     rando = RandomPlayer("CartPole-v0")

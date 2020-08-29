@@ -5,16 +5,15 @@ import pandas as pd
 
 
 class GameHandler:
-    ''' This class deals with all interactions with the game/gym challenge. The
-        class takes env, an OpenAI gym environment, sess: a tensorflow session,
-        model which will be a tensorflow network, memory which will be an
-        ExperienceBuffer object, some epsilons which dictate when the
-        GameHandler will take random action, a lamb (short for lambda) which
-        also dictates the rate of decrease of epsilon, and a gamma which is the
-        amount we discount future reward by.'''
+    """This class deals with all interactions with the game/gym challenge. The
+    class takes env, an OpenAI gym environment, sess: a tensorflow session,
+    model which will be a tensorflow network, memory which will be an
+    ExperienceBuffer object, some epsilons which dictate when the
+    GameHandler will take random action, a lamb (short for lambda) which
+    also dictates the rate of decrease of epsilon, and a gamma which is the
+    amount we discount future reward by."""
 
-    def __init__(self, env, sess, model, memory, max_epsilon, min_epsilon, lamb,
-                 gamma):
+    def __init__(self, env, sess, model, memory, max_epsilon, min_epsilon, lamb, gamma):
         self.env = env
         self.sess = sess
         self.model = model
@@ -46,9 +45,10 @@ class GameHandler:
             self.replay()
 
             self.steps += 1
-            self.epsilon = self.min_epsilon + ((self.max_epsilon
-                                                - self.min_epsilon) * math.exp(- self.lamb
-                                                                               * self.total_steps))
+            self.epsilon = self.min_epsilon + (
+                (self.max_epsilon - self.min_epsilon)
+                * math.exp(-self.lamb * self.total_steps)
+            )
             state = new_state
             total_reward += reward
 
@@ -68,9 +68,16 @@ class GameHandler:
     def replay(self):
         batch = self.memory.take_sample(self.model.batch_size)
         states = np.array([entry[0] for entry in batch])
-        new_states = np.array([(np.zeros(self.model.observation_size) if
-                                entry[3] is None else entry[3])
-                               for entry in batch])
+        new_states = np.array(
+            [
+                (
+                    np.zeros(self.model.observation_size)
+                    if entry[3] is None
+                    else entry[3]
+                )
+                for entry in batch
+            ]
+        )
 
         # predict Q(s,a) given the batch of states
         q_s_a = self.model.predict_batch(states, self.sess)

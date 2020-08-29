@@ -8,9 +8,19 @@ import lib.model_holder as mh
 
 
 class Controller:
-
-    def __init__(self, env_name, num_episodes, batch_size, total_memory,
-                 max_epsilon, min_epsilon, lamb, gamma, session, location):
+    def __init__(
+        self,
+        env_name,
+        num_episodes,
+        batch_size,
+        total_memory,
+        max_epsilon,
+        min_epsilon,
+        lamb,
+        gamma,
+        session,
+        location,
+    ):
 
         self.game = gym.make(env_name)
         self.num_states = self.game.env.observation_space.shape[0]
@@ -21,8 +31,7 @@ class Controller:
 
         self.num_episodes = num_episodes
 
-        self.model = mh.ModelHolder(self.num_actions, self.num_states,
-                                    batch_size)
+        self.model = mh.ModelHolder(self.num_actions, self.num_states, batch_size)
         self.memory = eb.ExperienceBuffer(total_memory)
 
         self.max_epsilon = max_epsilon
@@ -34,18 +43,26 @@ class Controller:
 
         self.session = session
 
-        self.handler = gh.GameHandler(self.game, self.session, self.model,
-                                      self.memory, self.max_epsilon,
-                                      self.min_epsilon, self.lamb, self.gamma)
-        self.parameters = {"env_name": env_name,
-                           "total_memory": total_memory,
-                           "batch_size": batch_size,
-                           "max_epsilon": max_epsilon,
-                           "min_epsilon": min_epsilon,
-                           "lambda": lamb,
-                           "gamma": gamma,
-                           "location": location
-                           }
+        self.handler = gh.GameHandler(
+            self.game,
+            self.session,
+            self.model,
+            self.memory,
+            self.max_epsilon,
+            self.min_epsilon,
+            self.lamb,
+            self.gamma,
+        )
+        self.parameters = {
+            "env_name": env_name,
+            "total_memory": total_memory,
+            "batch_size": batch_size,
+            "max_epsilon": max_epsilon,
+            "min_epsilon": min_epsilon,
+            "lambda": lamb,
+            "gamma": gamma,
+            "location": location,
+        }
 
     def learn_game(self, num_episodes, feedback=True, location=None):
         self.parameters["num_episodes"] = num_episodes
@@ -56,9 +73,7 @@ class Controller:
             while count < num_episodes:
                 if feedback:
                     if count % 100 == 0:
-                        print(
-                            'Episode {} of {}'.format(
-                                count + 1, num_episodes))
+                        print("Episode {} of {}".format(count + 1, num_episodes))
                 self.handler.run()
                 count += 1
             if location is not None:
@@ -74,8 +89,11 @@ class Controller:
 
     def test_learning(self, num_episodes):
         score = self.handler.test_learning(num_episodes)
-        print('The mean over {} steps was {}. The minimum score was {}.'.format(
-            num_episodes, score[0], score[1]))
+        print(
+            "The mean over {} steps was {}. The minimum score was {}.".format(
+                num_episodes, score[0], score[1]
+            )
+        )
 
     def plot_rewards(self):
         data = pd.Series(self.handler.reward_store)
